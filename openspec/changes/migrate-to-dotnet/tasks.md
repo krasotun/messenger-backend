@@ -1,15 +1,15 @@
 ## 1. Инструменты и каркас проекта
 
-- [ ] 1.1 Установить .NET 10 SDK и зафиксировать версию в `global.json` в корне
+- [x] 1.1 Установить .NET 10 SDK и зафиксировать версию в `global.json` в корне
       репозитория. Проверка: `dotnet --list-sdks` показывает установленную
       версию, `dotnet --version` в корне отдает версию из `global.json`.
-- [ ] 1.2 Завести solution и проект веб-API `src/Messenger.Api/` с
+- [x] 1.2 Завести solution и проект веб-API `src/Messenger.Api/` с
       контроллерами. Проверка: `dotnet build` проходит, `dotnet run` поднимает
       приложение.
-- [ ] 1.3 Завести тестовый проект `test/Messenger.Api.Tests/` на xUnit с
+- [x] 1.3 Завести тестовый проект `test/Messenger.Api.Tests/` на xUnit с
       `Microsoft.AspNetCore.Mvc.Testing` и ссылкой на проект API. Проверка:
       `dotnet test` проходит на пустом наборе тестов.
-- [ ] 1.4 Обновить `.gitignore` под .NET (`bin/`, `obj/`) и убрать из него
+- [x] 1.4 Обновить `.gitignore` под .NET (`bin/`, `obj/`) и убрать из него
       правила, относившиеся к сборке Node. Проверка: `git status` чист после
       `dotnet build`.
 
@@ -59,7 +59,7 @@
       `src/health/`, `test/app.e2e-spec.ts`, `nest-cli.json`,
       `tsconfig*.json`, `vitest.config.ts`, `vitest.config.e2e.ts`,
       `oxlint.json`, `.prettierrc`, `drizzle.config.ts`. Проверка: `dotnet
-  test` зеленый, в репозитории не осталось `.ts`-файлов приложения.
+test` зеленый, в репозитории не осталось `.ts`-файлов приложения.
 - [ ] 4.3 Поставить OpenSpec через `brew install openspec` и убедиться, что
       `openspec validate migrate-to-dotnet --strict` зеленый без `npx`.
       Проверка: команда отрабатывает при удаленном `node_modules/`.
@@ -82,7 +82,7 @@
       содержит Node.
 - [ ] 5.2 Обновить сервис `app` в `docker-compose.yml` под новые переменные и
       порт; сервис `postgres` и том не трогать. Проверка: `docker compose up
-  --build` поднимает оба сервиса, `GET /api/v2/health` из контейнера
+--build` поднимает оба сервиса, `GET /api/v2/health` из контейнера
       отвечает `200` и `{ "status": "ok" }`.
 - [ ] 5.3 Обновить `.dockerignore` под .NET (`bin/`, `obj/`). Проверка: в
       контекст сборки не попадают артефакты локальной сборки.
@@ -107,7 +107,7 @@
 ## 7. Сдача блока
 
 - [ ] 7.1 Прогнать полный набор проверок: `dotnet format
-  --verify-no-changes`, `dotnet test` на unit и на e2e с поднятой базой.
+--verify-no-changes`, `dotnet test` на unit и на e2e с поднятой базой.
       Проверка: все зеленые.
 - [ ] 7.2 Пройти сценарий вручную: `docker compose up --build` с нуля на
       чистом томе, миграции, `GET /api/v2/health`. Проверка: отвечает `200` и
