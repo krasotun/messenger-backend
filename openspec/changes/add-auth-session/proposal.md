@@ -15,7 +15,8 @@ Issue: #1
 - Реализуются четыре эндпоинта контракта под префиксом `api/v2`:
   - `POST /auth/signup` - создание пользователя, ответ `{ id }`, установка
     session cookie;
-  - `POST /auth/signin` - вход по логину и паролю, установка session cookie;
+  - `POST /auth/signin` - вход по логину и паролю, установка session cookie,
+    ответ `200` с пустым телом: контракт описывает его без `schema`;
   - `GET /auth/user` - профиль текущего пользователя или `401` у гостя;
   - `POST /auth/logout` - завершение сессии и сброс cookie.
 - Появляются первые сущности EF Core: `users` и `sessions`, и первая
@@ -57,9 +58,10 @@ Issue: #1
   аутентификации, авторизации по умолчанию и CORS в `Program.cs`.
 - Контракт: только реализация уже описанного, правок `docs/api/swagger.json` и
   `docs/api/README.md` не требуется.
-- Зависимости: `Microsoft.Extensions.Identity.Core` ради `PasswordHasher<T>` -
-  только абстракции, без таблиц и эндпоинтов Identity. Валидация и cookie-
-  аутентификация встроены, пакетов не требуют.
+- Зависимости: новых нет. `PasswordHasher<T>` берется из
+  `Microsoft.Extensions.Identity.Core`, которая уже входит в shared framework,
+  и только как абстракция - без таблиц и эндпоинтов Identity. Валидация и
+  cookie-аутентификация тоже встроены.
 - Конфигурация: новые секции `Session` (`CookieName`, `TtlDays`), `Cookie`
   (`Secure`, `SameSite`) и `Cors` (`Origins`) в `appsettings.json`, отражаются
   в `.env.example` и `docker-compose.yml`.
