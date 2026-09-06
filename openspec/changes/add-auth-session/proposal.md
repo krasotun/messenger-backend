@@ -18,18 +18,20 @@ Issue: #1
   - `POST /auth/signin` - вход по логину и паролю, установка session cookie;
   - `GET /auth/user` - профиль текущего пользователя или `401` у гостя;
   - `POST /auth/logout` - завершение сессии и сброс cookie.
-- Появляются первые таблицы схемы Drizzle: `users` и `sessions`, и первая
-  миграция в `drizzle/`.
-- Пароль хранится хешем (scrypt из `node:crypto`), в ответах не появляется
-  никогда.
+- Появляются первые сущности EF Core: `users` и `sessions`, и первая
+  содержательная миграция в `src/Messenger.Api/Data/Migrations/`.
+- Пароль хранится хешем (`PasswordHasher<T>` из ASP.NET Core Identity,
+  PBKDF2-HMAC-SHA512), в ответах не появляется никогда.
 - Сессия серверная: cookie хранит непредсказуемый идентификатор, состояние
   живет в таблице `sessions`. Logout гасит сессию в БД, а не только у клиента.
-- Появляется guard текущей сессии и способ достать текущего пользователя в
-  контроллере - им будут пользоваться все последующие эндпоинты.
-- Включается CORS с `credentials: true` и списком разрешенных origin из
-  окружения: фронт живет на другом порту и шлет `withCredentials: true`.
-- Появляется единый формат ошибки `{ reason }` из контракта и валидация тел
-  запросов.
+- Включается штатная cookie-аутентификация с серверным хранилищем сессий
+  (`ITicketStore`) и требование авторизации по умолчанию: `[Authorize]`
+  становится правилом, `[AllowAnonymous]` - исключением. Этим механизмом будут
+  пользоваться все последующие эндпоинты.
+- Включается CORS с `AllowCredentials` и списком разрешенных origin из
+  конфигурации: фронт живет на другом порту и шлет `withCredentials: true`.
+- Появляется валидация тел запросов на DataAnnotations. Формат ошибки
+  `{ reason }` заводить не нужно: он пришел с `migrate-to-dotnet`.
 
 Отклонений от контракта нет: пути, методы, коды и состав полей берутся из
 `docs/api/swagger.json`.
@@ -47,14 +49,20 @@ Issue: #1
 
 ## Impact
 
-- Код: новый модуль `src/identity-access/`, guard и декоратор текущей сессии в
-  `src/core/`, схема и миграции в `src/database/` и `drizzle/`, включение CORS и
-  глобальной валидации в `src/main.ts`, регистрация модуля в `src/app.module.ts`.
+- Зависит от `migrate-to-dotnet`: этот change пишется под .NET и в реализацию
+  до его мержа не идет.
+- Код: новый каталог `src/Messenger.Api/IdentityAccess/` с контроллером `auth`,
+  сервисом и DTO; сущности, конфигурация модели и миграции в
+  `src/Messenger.Api/Data/`; реализация `ITicketStore` там же; подключение
+  аутентификации, авторизации по умолчанию и CORS в `Program.cs`.
 - Контракт: только реализация уже описанного, правок `docs/api/swagger.json` и
   `docs/api/README.md` не требуется.
-- Зависимости: `cookie-parser`, `class-validator` и `class-transformer` для
-  валидации DTO; нативных модулей не добавляется - хеширование берется из
-  `node:crypto`.
-- Окружение: новые переменные `SESSION_COOKIE_NAME`, `SESSION_TTL_DAYS`,
-  `CORS_ORIGINS`, `COOKIE_SECURE` в `.env.example` и `docker-compose.yml`.
+- Зависимости: `Microsoft.Extensions.Identity.Core` ради `PasswordHasher<T>` -
+  только абстракции, без таблиц и эндпоинтов Identity. Валидация и cookie-
+  аутентификация встроены, пакетов не требуют.
+- Конфигурация: новые секции `Session` (`CookieName`, `TtlDays`), `Cookie`
+  (`Secure`, `SameSite`) и `Cors` (`Origins`) в `appsettings.json`, отражаются
+  в `.env.example` и `docker-compose.yml`.
+- Тесты: `dotnet test` начинает требовать поднятой базы - до сих пор e2e
+  обходились без нее. Шаг записывается в `README.md`.
 - Фронт: синхронной правки не требует - он уже умеет эти четыре вызова.
