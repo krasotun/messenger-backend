@@ -114,7 +114,7 @@ test` зеленый, в репозитории не осталось `.ts`-фа
 - [x] 7.2 Пройти сценарий вручную: `docker compose up --build` с нуля на
       чистом томе, миграции, `GET /api/v2/health`. Проверка: отвечает `200` и
       `{ "status": "ok" }`.
-- [ ] 7.3 Обновить `add-auth-session` через `/opsx:update`: `design.md` и
+- [x] 7.3 Обновить `add-auth-session` через `/opsx:update`: `design.md` и
       `tasks.md` под .NET, блок Impact в `proposal.md`; `spec.md` не трогать.
       Проверка: `npx openspec validate add-auth-session --strict` зеленый и в
       его артефактах не осталось упоминаний Nest, Drizzle и Vitest.
