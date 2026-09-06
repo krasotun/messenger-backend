@@ -9,25 +9,38 @@
 ## Требования
 
 - Node.js 22+ (проверено на 26)
-- PostgreSQL 16+
+- Docker с плагином Compose
 
-PostgreSQL локально ставится через Homebrew, docker не нужен:
-
-```sh
-brew install postgresql@17
-brew services start postgresql@17
-createuser -s messenger
-createdb -O messenger messenger
-```
+PostgreSQL в систему не ставится - он живет в контейнере, см. ниже.
 
 ## Запуск
 
+Весь стенд в докере:
+
 ```sh
+cp .env.example .env
+docker compose up --build
+```
+
+Поднимаются два сервиса: `postgres` (порт 5432 проброшен на хост) и `app`
+(порт 3001). Приложение стартует только после того, как БД прошла healthcheck.
+
+Разработка с watch-режимом - приложение на хосте, база в докере:
+
+```sh
+docker compose up -d postgres
 npm ci
-cp .env.example .env   # при необходимости поправить DATABASE_URL
-npm run db:migrate     # применить миграции
 npm run start:dev
 ```
+
+Миграции пока гоняются с хоста - `drizzle-kit` лежит в dev-зависимостях, а в
+production-образ они не попадают:
+
+```sh
+npm run db:migrate
+```
+
+Как мигрировать на сервере - вопрос к issue про деплой, здесь он не решен.
 
 Сервер поднимается на `http://localhost:3001`, все пути под префиксом
 `/api/v2`. Порт 3001, а не 3000: 3000 занят `mock-backend` фронта, и они должны
