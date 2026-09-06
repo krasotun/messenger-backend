@@ -31,8 +31,11 @@ update`. Каталог `drizzle/` уступает место каталогу 
   образы .NET. Сервис `postgres` не меняется вовсе.
 - `openspec/config.yaml`: блок `context` описывает стек и структуру каталогов -
   переписывается целиком.
-- `package.json` остается, урезанный до инструментов процесса: OpenSpec CLI,
-  husky, commitlint. Node в репозитории больше ни за что не отвечает.
+- `package.json`, `package-lock.json`, `node_modules/`, `.husky/` и
+  `commitlint.config.js` удаляются. Инструменты процесса переезжают: husky,
+  lint-staged и commitlint заменяет Husky.Net как локальный dotnet-инструмент,
+  OpenSpec CLI ставится через `brew install openspec`. Node перестает быть и
+  рантаймом приложения, и инструментом репозитория.
 - `GET /api/v2/health` продолжает отвечать `200` и `{ "status": "ok" }` -
   единственное существующее поведение сохраняется без изменений.
 
@@ -60,15 +63,19 @@ update`. Каталог `drizzle/` уступает место каталогу 
 - Код: `src/` и `test/` удаляются целиком и заводятся заново на .NET.
 - Процесс: `openspec/config.yaml` (блок `context`), `README.md` (запуск,
   миграции, тесты), `.env.example`, `Dockerfile`, `docker-compose.yml`,
-  `.gitignore`, хуки husky и `lint-staged`.
+  `.gitignore`. Хуки переезжают с husky и `lint-staged` на Husky.Net, формат
+  коммитов - с commitlint на регулярку в `.csx`.
 - Смежный change: у `add-auth-session` `design.md` и `tasks.md` написаны под
   Nest, Drizzle и Vitest и становятся неактуальными в момент мержа этого
   change. `proposal.md` теряет только блок Impact, `spec.md` остается верным
   целиком. Обновляются отдельно через `/opsx:update` - до начала реализации #1.
-- Зависимости: уходят `@nestjs/*`, `drizzle-orm`, `drizzle-kit`, `pg`,
-  `vitest`, `oxlint`, `prettier`, `supertest`. Приходят `Npgsql.EntityFramework
-Core.PostgreSQL`, `Microsoft.EntityFrameworkCore.Design`, `xunit`,
-  `Microsoft.AspNetCore.Mvc.Testing`.
+- Зависимости: npm-дерево уходит целиком - `@nestjs/*`, `drizzle-orm`,
+  `drizzle-kit`, `pg`, `vitest`, `oxlint`, `prettier`, `supertest`, husky и
+  commitlint. Приходят `Npgsql.EntityFrameworkCore.PostgreSQL`,
+  `Microsoft.EntityFrameworkCore.Design`, `xunit`,
+  `Microsoft.AspNetCore.Mvc.Testing` и Husky.Net в `dotnet-tools.json`.
+- Инструменты разработчика: OpenSpec CLI переезжает на `brew install
+openspec`; prettier для markdown и JSON пропадает без замены.
 - Окружение: `DATABASE_URL` в формате URI уступает строке подключения Npgsql -
   формат другой, значение то же. `PORT` заменяется на механизм конфигурации
   ASP.NET Core.

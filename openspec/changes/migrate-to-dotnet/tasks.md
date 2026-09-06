@@ -59,14 +59,21 @@
       `src/health/`, `test/app.e2e-spec.ts`, `nest-cli.json`,
       `tsconfig*.json`, `vitest.config.ts`, `vitest.config.e2e.ts`,
       `oxlint.json`, `.prettierrc`, `drizzle.config.ts`. Проверка: `dotnet
-  test` зеленый, в репозитории не осталось `.ts`-файлов приложения.
-- [ ] 4.3 Урезать `package.json` до инструментов процесса: OpenSpec CLI,
-      husky, commitlint; убрать `lint-staged` для `*.ts` или перенастроить его
-      на `dotnet format`. Проверка: `npm ci` проходит, хук `commit-msg`
-      по-прежнему отклоняет коммит с неверным заголовком.
-- [ ] 4.4 Настроить `.editorconfig` и анализаторы, заменяющие oxlint и
-      prettier. Проверка: `dotnet format --verify-no-changes` зеленый на всей
-      кодовой базе.
+test` зеленый, в репозитории не осталось `.ts`-файлов приложения.
+- [ ] 4.3 Поставить OpenSpec через `brew install openspec` и убедиться, что
+      `openspec validate migrate-to-dotnet --strict` зеленый без `npx`.
+      Проверка: команда отрабатывает при удаленном `node_modules/`.
+- [ ] 4.4 Завести `dotnet-tools.json` с Husky.Net, хук `commit-msg` на
+      `.csx`-скрипт с регуляркой Conventional Commits и перечнем скоупов из
+      снимаемого `commitlint.config.js`, хук `pre-commit` на `dotnet format`
+      по `${staged}`. Проверка: коммит с неверным заголовком отклоняется, с
+      верным - проходит; скоуп вне перечня отклоняется.
+- [ ] 4.5 Удалить `package.json`, `package-lock.json`, `node_modules/`,
+      `.husky/` и `commitlint.config.js`. Проверка: в репозитории не осталось
+      файлов npm, хуки и `openspec` продолжают работать.
+- [ ] 4.6 Настроить `.editorconfig` и анализаторы, заменяющие oxlint.
+      Проверка: `dotnet format --verify-no-changes` зеленый на всей кодовой
+      базе.
 
 ## 5. Сборка и запуск
 
@@ -75,7 +82,7 @@
       содержит Node.
 - [ ] 5.2 Обновить сервис `app` в `docker-compose.yml` под новые переменные и
       порт; сервис `postgres` и том не трогать. Проверка: `docker compose up
-  --build` поднимает оба сервиса, `GET /api/v2/health` из контейнера
+--build` поднимает оба сервиса, `GET /api/v2/health` из контейнера
       отвечает `200` и `{ "status": "ok" }`.
 - [ ] 5.3 Обновить `.dockerignore` под .NET (`bin/`, `obj/`). Проверка: в
       контекст сборки не попадают артефакты локальной сборки.
@@ -89,16 +96,18 @@
 - [ ] 6.2 Обновить `README.md`: установка SDK, поднятие базы, миграции,
       запуск, команды тестов и формата. Проверка: инструкция проходится с нуля
       на чистой машине без обращения к другим источникам.
-- [ ] 6.3 Обновить в `CLAUDE.md` упоминания внешних инструментов, справку по
-      которым берем через Context7: вместо NestJS и Drizzle - ASP.NET Core и
-      EF Core. Проверка: в файле не осталось ссылок на снятый стек.
+- [ ] 6.3 Обновить `CLAUDE.md`: внешние инструменты для Context7 (ASP.NET
+      Core и EF Core вместо NestJS и Drizzle), команды проверок блока вместо
+      `npm run lint` и `npm run test:*`, перечень скоупов вместо ссылки на
+      удаленный `commitlint.config.js`, вызов `openspec` вместо `npx openspec`.
+      Проверка: в файле не осталось ссылок на снятый стек и на файлы npm.
 - [ ] 6.4 Сверить `docs/api/swagger.json` и `docs/api/README.md`: они не
       меняются. Проверка: `git diff` по каталогу `docs/api/` пуст.
 
 ## 7. Сдача блока
 
 - [ ] 7.1 Прогнать полный набор проверок: `dotnet format
-  --verify-no-changes`, `dotnet test` на unit и на e2e с поднятой базой.
+--verify-no-changes`, `dotnet test` на unit и на e2e с поднятой базой.
       Проверка: все зеленые.
 - [ ] 7.2 Пройти сценарий вручную: `docker compose up --build` с нуля на
       чистом томе, миграции, `GET /api/v2/health`. Проверка: отвечает `200` и
