@@ -1,7 +1,10 @@
+# Сборка .NET
+bin/
+obj/
+TestResults/
+
+# Инструменты процесса на npm: OpenSpec CLI, husky, commitlint
 node_modules/
-dist/
-coverage/
-*.tsbuildinfo
 
 .env
 .env.local
