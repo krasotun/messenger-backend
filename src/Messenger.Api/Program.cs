@@ -1,15 +1,13 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
-app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
+
+// WebApplicationFactory в e2e-тестах требует доступного типа точки входа,
+// а при top-level statements он генерируется internal.
+public partial class Program;
