@@ -15,7 +15,7 @@
 
 ## 2. Конфигурация, сериализация и ошибки
 
-- [ ] 2.1 Задать префикс `api/v2` для всех контроллеров. Проверка: маршрут
+- [x] 2.1 Задать префикс `api/v2` для всех контроллеров. Проверка: маршрут
       health доступен по `/api/v2/health` и недоступен по `/health`.
 - [ ] 2.2 Включить глобальную политику именования JSON
       `JsonNamingPolicy.SnakeCaseLower` на сериализацию и десериализацию.
@@ -31,7 +31,7 @@
       переменных окружения; добавить валидацию на старте с падением и внятным
       сообщением при отсутствии строки подключения. Проверка: приложение не
       стартует без строки подключения и стартует с ней.
-- [ ] 2.5 Обновить `.env.example`: строка подключения в формате Npgsql вместо
+- [x] 2.5 Обновить `.env.example`: строка подключения в формате Npgsql вместо
       URI, комментарий о смене формата. Проверка: значение из `.env.example`
       подходит к базе из `docker compose up postgres`.
 
@@ -52,56 +52,58 @@
 
 ## 4. Health и снос старого стека
 
-- [ ] 4.1 Реализовать `GET /api/v2/health`, отвечающий `200` и телом
-      `{ "status": "ok" }`. Проверка: e2e через `WebApplicationFactory`
-      сверяет код и тело дословно.
-- [ ] 4.2 Удалить `src/main.ts`, `src/app.module.ts`, `src/database/`,
+- [x] 4.1 Реализовать `GET /api/v2/health`, отвечающий `200` и телом
+      `{ "status": "ok", "uptime": <целое число секунд> }` - тем же, что
+      отдает снимаемый Nest-эндпоинт. Проверка: e2e через
+      `WebApplicationFactory` сверяет код, состав полей, `status` и то, что
+      `uptime` - неотрицательное целое.
+- [x] 4.2 Удалить `src/main.ts`, `src/app.module.ts`, `src/database/`,
       `src/health/`, `test/app.e2e-spec.ts`, `nest-cli.json`,
       `tsconfig*.json`, `vitest.config.ts`, `vitest.config.e2e.ts`,
       `oxlint.json`, `.prettierrc`, `drizzle.config.ts`. Проверка: `dotnet
 test` зеленый, в репозитории не осталось `.ts`-файлов приложения.
-- [ ] 4.3 Поставить OpenSpec через `brew install openspec` и убедиться, что
+- [x] 4.3 Поставить OpenSpec через `brew install openspec` и убедиться, что
       `openspec validate migrate-to-dotnet --strict` зеленый без `npx`.
       Проверка: команда отрабатывает при удаленном `node_modules/`.
-- [ ] 4.4 Завести `dotnet-tools.json` с Husky.Net, хук `commit-msg` на
+- [x] 4.4 Завести `dotnet-tools.json` с Husky.Net, хук `commit-msg` на
       `.csx`-скрипт с регуляркой Conventional Commits и перечнем скоупов из
       снимаемого `commitlint.config.js`, хук `pre-commit` на `dotnet format`
       по `${staged}`. Проверка: коммит с неверным заголовком отклоняется, с
       верным - проходит; скоуп вне перечня отклоняется.
-- [ ] 4.5 Удалить `package.json`, `package-lock.json`, `node_modules/`,
+- [x] 4.5 Удалить `package.json`, `package-lock.json`, `node_modules/`,
       `.husky/` и `commitlint.config.js`. Проверка: в репозитории не осталось
       файлов npm, хуки и `openspec` продолжают работать.
-- [ ] 4.6 Настроить `.editorconfig` и анализаторы, заменяющие oxlint.
+- [x] 4.6 Настроить `.editorconfig` и анализаторы, заменяющие oxlint.
       Проверка: `dotnet format --verify-no-changes` зеленый на всей кодовой
       базе.
 
 ## 5. Сборка и запуск
 
-- [ ] 5.1 Переписать `Dockerfile` на образы .NET: сборка в SDK-образе,
+- [x] 5.1 Переписать `Dockerfile` на образы .NET: сборка в SDK-образе,
       рантайм в `aspnet`-образе. Проверка: `docker build .` проходит, образ не
       содержит Node.
-- [ ] 5.2 Обновить сервис `app` в `docker-compose.yml` под новые переменные и
+- [x] 5.2 Обновить сервис `app` в `docker-compose.yml` под новые переменные и
       порт; сервис `postgres` и том не трогать. Проверка: `docker compose up
 --build` поднимает оба сервиса, `GET /api/v2/health` из контейнера
       отвечает `200` и `{ "status": "ok" }`.
-- [ ] 5.3 Обновить `.dockerignore` под .NET (`bin/`, `obj/`). Проверка: в
+- [x] 5.3 Обновить `.dockerignore` под .NET (`bin/`, `obj/`). Проверка: в
       контекст сборки не попадают артефакты локальной сборки.
 
 ## 6. Процесс и документация
 
-- [ ] 6.1 Переписать блок `context` в `openspec/config.yaml`: стек, структура
+- [x] 6.1 Переписать блок `context` в `openspec/config.yaml`: стек, структура
       каталогов, команды проверок. Проверка: описание совпадает с тем, что
       реально лежит в репозитории, и не упоминает Nest, Drizzle, Vitest и
       oxlint.
 - [ ] 6.2 Обновить `README.md`: установка SDK, поднятие базы, миграции,
       запуск, команды тестов и формата. Проверка: инструкция проходится с нуля
       на чистой машине без обращения к другим источникам.
-- [ ] 6.3 Обновить `CLAUDE.md`: внешние инструменты для Context7 (ASP.NET
+- [x] 6.3 Обновить `CLAUDE.md`: внешние инструменты для Context7 (ASP.NET
       Core и EF Core вместо NestJS и Drizzle), команды проверок блока вместо
       `npm run lint` и `npm run test:*`, перечень скоупов вместо ссылки на
       удаленный `commitlint.config.js`, вызов `openspec` вместо `npx openspec`.
       Проверка: в файле не осталось ссылок на снятый стек и на файлы npm.
-- [ ] 6.4 Сверить `docs/api/swagger.json` и `docs/api/README.md`: они не
+- [x] 6.4 Сверить `docs/api/swagger.json` и `docs/api/README.md`: они не
       меняются. Проверка: `git diff` по каталогу `docs/api/` пуст.
 
 ## 7. Сдача блока
@@ -109,7 +111,7 @@ test` зеленый, в репозитории не осталось `.ts`-фа
 - [ ] 7.1 Прогнать полный набор проверок: `dotnet format
 --verify-no-changes`, `dotnet test` на unit и на e2e с поднятой базой.
       Проверка: все зеленые.
-- [ ] 7.2 Пройти сценарий вручную: `docker compose up --build` с нуля на
+- [x] 7.2 Пройти сценарий вручную: `docker compose up --build` с нуля на
       чистом томе, миграции, `GET /api/v2/health`. Проверка: отвечает `200` и
       `{ "status": "ok" }`.
 - [ ] 7.3 Обновить `add-auth-session` через `/opsx:update`: `design.md` и

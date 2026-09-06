@@ -20,9 +20,10 @@ services:
     build:
       context: .
     environment:
-      PORT: 3001
+      ASPNETCORE_HTTP_PORTS: 3001
       # Внутри compose база доступна по имени сервиса, а не по localhost.
-      DATABASE_URL: postgres://messenger:messenger@postgres:5432/messenger
+      # Формат Npgsql, не URI: строку читает EF Core начиная с блока 3.
+      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=messenger;Username=messenger;Password=messenger
     ports:
       - '3001:3001'
     depends_on:
