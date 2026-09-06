@@ -28,12 +28,11 @@ dotnet husky install
 Весь стенд в докере:
 
 ```sh
-cp .env.example .env
 docker compose up --build
 ```
 
 Поднимаются два сервиса: `postgres` (порт 5432 проброшен на хост) и `app`
-(порт 3001).
+(порт 3001). Значения переменных `app` заданы прямо в `docker-compose.yml`.
 
 Разработка на хосте, база в докере:
 
@@ -42,15 +41,44 @@ docker compose up -d postgres
 dotnet run --project src/Messenger.Api
 ```
 
+Локально настройки берутся из `appsettings.Development.json` и подходят к базе
+из compose. Перекрыть их можно переменными окружения - образец с пояснением про
+формат строки подключения лежит в `.env.example`; файла `.env` приложение не
+читает, значения экспортируются в оболочку.
+
 Сервер поднимается на `http://localhost:3001`, все пути под префиксом
 `/api/v2`. Порт 3001, а не 3000: 3000 занят `mock-backend` фронта, и они должны
 уживаться одновременно.
+
+Приложение не требует базы на старте: соединение открывается лениво, на первом
+запросе к БД. Поднятый с остановленным Postgres сервер отвечает на health.
 
 Проверка живости:
 
 ```sh
 curl http://localhost:3001/api/v2/health
 ```
+
+## Миграции
+
+Схема описывается кодом в `src/Messenger.Api/Data/`, миграции генерирует EF
+Core по разнице моделей. `dotnet-ef` - локальный инструмент из
+`dotnet-tools.json`, отдельно его ставить не нужно: он приезжает с
+`dotnet tool restore`.
+
+```sh
+docker compose up -d postgres
+dotnet ef migrations add <Name> --project src/Messenger.Api --output-dir Data/Migrations
+dotnet ef database update --project src/Messenger.Api
+```
+
+Сгенерированную миграцию читают глазами до наката: EF Core прячет SQL, и
+увидеть его больше негде.
+
+Строку подключения `dotnet ef` берет из `appsettings.Development.json` -
+инструменты запускают приложение в окружении Development.
+
+Как мигрировать на сервере - вопрос к issue про деплой, здесь он не решен.
 
 ## Команды
 
@@ -61,6 +89,8 @@ curl http://localhost:3001/api/v2/health
 | `dotnet test`                        | Тесты - unit и e2e            |
 | `dotnet format`                      | Форматирование по `.editorconfig` |
 | `dotnet format --verify-no-changes`  | Проверка формата без правок   |
+| `dotnet ef migrations add <Name>`    | Сгенерировать миграцию по модели |
+| `dotnet ef database update`          | Применить миграции            |
 | `openspec list`                      | Активные changes              |
 
 e2e-тесты поднимают приложение в процессе через `WebApplicationFactory` и ходят
@@ -69,6 +99,7 @@ e2e-тесты поднимают приложение в процессе че�
 ## Структура
 
 - `src/Messenger.Api/` - проект API: контроллеры, конфигурация, точка входа;
+- `src/Messenger.Api/Data/` - `DbContext` и миграции EF Core;
 - `test/Messenger.Api.Tests/` - тесты;
 - `docs/api/` - контракт: `swagger.json` и протокол переписки;
 - `openspec/` - спецификации и changes.
