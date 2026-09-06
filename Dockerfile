@@ -5,6 +5,10 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS builder
 
 WORKDIR /src
 
+# Версия SDK пинится тем же global.json, что и на хосте: если базовый образ
+# уедет ниже пина, сборка упадет здесь, а не соберется на другом SDK молча.
+COPY global.json ./
+
 # Сначала только csproj - слой с restore переиспользуется, пока не менялись зависимости.
 COPY src/Messenger.Api/Messenger.Api.csproj src/Messenger.Api/
 RUN dotnet restore src/Messenger.Api/Messenger.Api.csproj
