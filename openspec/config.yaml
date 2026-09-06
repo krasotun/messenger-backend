@@ -26,20 +26,24 @@ context: |
 
   ## Стек и структура
 
-  NestJS 12 (ESM), TypeScript, PostgreSQL через Drizzle ORM.
-  Тесты: Vitest - unit (`*.spec.ts` рядом с кодом) и e2e (`test/`, supertest).
-  Линтер - oxlint, форматирование - prettier.
+  .NET 10, ASP.NET Core на контроллерах, PostgreSQL через EF Core с провайдером
+  Npgsql. Тесты: xUnit - unit и e2e через `WebApplicationFactory`, оба в одном
+  проекте `test/Messenger.Api.Tests/`. Формат кода - `dotnet format` по
+  `.editorconfig`.
 
-  - `src/<context>/` - модуль домена: контроллер, сервис, DTO;
-  - `src/database/` - подключение к БД, схема Drizzle, миграции в `drizzle/`;
-  - `src/health/` - health-эндпоинт;
-  - `src/app.module.ts` - composition root.
+  - `src/Messenger.Api/Controllers/` - контроллеры API;
+  - `src/Messenger.Api/Program.cs` - composition root;
+  - `test/Messenger.Api.Tests/` - тесты;
+  - `Messenger.slnx` - solution, `global.json` - версия SDK.
 
-  Глобальный префикс путей - `api/v2`, он задан в `src/main.ts` и повторяет
-  форму контракта.
+  Глобальный префикс путей - `api/v2`, он задан один раз в
+  `Controllers/ApiControllerBase.cs` и повторяет форму контракта.
 
   Схема БД пуста до первого change: таблицы заводятся вместе с эндпоинтами,
   которые их читают, а не заранее.
+
+  Инструменты процесса живут вне npm: OpenSpec CLI ставится через
+  `brew install openspec`, git-хуки - Husky.Net из `dotnet-tools.json`.
 
   ## Глоссарий
 
@@ -59,4 +63,5 @@ context: |
   Без change обходятся только правки, не меняющие поведение: рефакторинг,
   конфигурация, документация, исправление сборки.
 
-  Проверки блока: `npm run lint`, `npm run test:ci`, `npm run test:e2e`.
+  Проверки блока: `dotnet format --verify-no-changes`, `dotnet build`,
+  `dotnet test`.

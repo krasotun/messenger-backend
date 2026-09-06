@@ -1,29 +1,31 @@
 # syntax=docker/dockerfile:1
 
-# Сборка: полные зависимости нужны только здесь.
-FROM node:26-alpine AS builder
+# Сборка: SDK нужен только здесь.
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS builder
+
+WORKDIR /src
+
+# Версия SDK пинится тем же global.json, что и на хосте: если базовый образ
+# уедет ниже пина, сборка упадет здесь, а не соберется на другом SDK молча.
+COPY global.json ./
+
+# Сначала только csproj - слой с restore переиспользуется, пока не менялись зависимости.
+COPY src/Messenger.Api/Messenger.Api.csproj src/Messenger.Api/
+RUN dotnet restore src/Messenger.Api/Messenger.Api.csproj
+
+COPY src/Messenger.Api/ src/Messenger.Api/
+RUN dotnet publish src/Messenger.Api/Messenger.Api.csproj -c Release -o /app --no-restore
+
+# Запуск: рантайм ASP.NET Core без SDK.
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runner
 
 WORKDIR /app
+COPY --from=builder /app ./
 
-COPY package.json package-lock.json ./
-RUN npm ci
+# Kestrel в контейнере слушает 8080 по умолчанию; у нас 3001, как у снятого Nest.
+ENV ASPNETCORE_HTTP_PORTS=3001
 
-COPY tsconfig*.json nest-cli.json ./
-COPY src ./src
-RUN npm run build
-
-# Запуск: только production-зависимости и собранный dist.
-FROM node:26-alpine AS runner
-
-WORKDIR /app
-ENV NODE_ENV=production
-
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev && npm cache clean --force
-
-COPY --from=builder /app/dist ./dist
-
-USER node
+USER $APP_UID
 EXPOSE 3001
 
-CMD ["node", "dist/main"]
+ENTRYPOINT ["dotnet", "Messenger.Api.dll"]
