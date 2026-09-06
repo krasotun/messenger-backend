@@ -1,16 +1,22 @@
 using System.Text.Json;
 using Messenger.Api.Configuration;
+using Messenger.Api.Data;
 using Messenger.Api.Errors;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Падаем на старте, а не на первом запросе к БД: формат строки сменился вместе
 // со стеком, и молча не подошедшее значение искать дороже.
-builder.Configuration.GetPostgresConnectionString();
+var connectionString = builder.Configuration.GetPostgresConnectionString();
+
+// Соединение открывается лениво, на первом запросе к БД: регистрация контекста
+// старт приложения к доступности Postgres не привязывает.
+builder.Services.AddDbContext<MessengerDbContext>(options => options.UseNpgsql(connectionString));
 
 builder.Services
     .AddControllers()
