@@ -1,0 +1,35 @@
+# Формат кода. Заменяет oxlint и prettier, снятые вместе со стеком Node.
+# Применяется хуком pre-commit через `dotnet format` и проверяется
+# `dotnet format --verify-no-changes`.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.cs]
+indent_size = 4
+max_line_length = 120
+
+# Явные модификаторы доступа и var только там, где тип очевиден.
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = false:suggestion
+
+# File-scoped namespace: в проекте один тип на файл.
+csharp_style_namespace_declarations = file_scoped:warning
+
+csharp_new_line_before_open_brace = all
+csharp_indent_case_contents = true
+dotnet_sort_system_directives_first = true
+
+[*.{json,yml,yaml,md}]
+indent_size = 2
+
+[*.{csproj,slnx,props,targets}]
+indent_size = 2
