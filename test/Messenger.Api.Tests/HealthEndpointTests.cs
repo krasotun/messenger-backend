@@ -1,12 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Messenger.Api.Tests;
 
-public sealed class HealthEndpointTests(WebApplicationFactory<Program> factory)
-    : IClassFixture<WebApplicationFactory<Program>>
+public sealed class HealthEndpointTests(MessengerApiFactory factory)
+    : IClassFixture<MessengerApiFactory>
 {
     [Fact(DisplayName = "GET /api/v2/health отвечает 200 и телом снятого Nest-эндпоинта")]
     public async Task Health_returns_the_contract_body()
